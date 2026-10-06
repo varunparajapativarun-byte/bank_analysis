@@ -1,0 +1,48 @@
+create database bank;
+
+show tables;
+
+select * from account_fact;
+
+select * from customer_dim;
+
+#1. Show all customers with their country and balance.
+select  customer_dim.customer_id, account_fact.balance from customer_dim
+join account_fact on customer_dim.customer_id = account_fact.customer_id;
+#2. Display customers who have a credit card.
+select * from account_fact limit 1;
+#3. Count total number of customers.
+select count(*) as total_customers from customer_dim;
+
+#4. Find the average balance by country, but only include countries
+#having more than 50 customers.
+select  customer_dim.country, avg(account_fact.balance) as avg_balance from customer_dim
+join account_fact on customer_dim.customer_id = account_fact.customer_id group by  customer_dim.country
+having count(*) > 50;
+#Q5. Find gender-wise average credit score, but only for active members.
+select cd.gender , avg(af.credit_score) from account_fact af 
+join customer_dim cd on af.customer_id = cd.customer_id where active_member = 1 group by cd.gender;
+
+#Q6. Find number of churned customers.
+select count(*) from account_fact af  join customer_dim db on af.customer_id = db.customer_id
+where af.churn=1;
+
+#Q7. Find average credit score of active members.
+select avg(vf.credit_score) from account_fact vf  join customer_dim ad on vf.customer_id = ad.customer_id
+where vf.active_member = 1;
+#Q8. Find customers whose balance is higher than average balance.
+select * from account_fact ak join customer_dim bv on ak.customer_id = bv.customer_id
+where ak.balance > (select avg(balance)from account_fact);
+
+#Q9. Find country-wise churn count and average balance, but show only
+#those countries where churn count is greater than 10.
+select gp.country ,sum(af.churn),avg(af.balance) from account_fact af 
+join customer_dim gp on af.customer_id = gp.customer_id group by gp.country
+having sum(af.churn) > 10;
+
+#10. Find the country-wise average balance, but show only those countries whose average balance
+# is greater than the overall average balance of all customers.
+
+select ap.country ,avg(vk.balance) from account_fact vk  join customer_dim ap on vk.customer_id = ap.customer_id
+group by ap.country having avg(vk.balance) > (select avg(balance) from account_fact);
+
